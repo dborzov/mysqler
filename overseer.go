@@ -23,24 +23,40 @@ func main() {
 								product.id, 
 								product.name,
 								product.category_id,
-								category.name
+								category.name,
+								vendor.name,
+								vendor_inventory.regular_price
 							FROM 
 							    product,
-							    category
+							    category,
+							    vendor_inventory, 
+							    vendor
 							WHERE
-							    product.category_id=category.id;`)
+							    product.category_id=category.id 
+						      AND
+							    vendor_inventory.product_id=product.id
+						      AND
+						        vendor_inventory.vendor_id=vendor.id
+							    ;`)
 
 	if err != nil {
 		panic(err.Error())
 	}
 
+	Words := make([]string, 0)
+	Values := make([]interface{}, 0)
+
 	for rows.Next() {
-		var id, name, category_id, category_name string
-		if err := rows.Scan(&id, &name, &category_id, &category_name); err != nil {
+		var id, name, category_id, category_name, vendor, price string
+		if err := rows.Scan(&id, &name, &category_id, &category_name, &vendor, &price); err != nil {
 			panic(err.Error())
 		}
 		fmt.Println("-----------------------------------")
 		fmt.Println("Name: ", name)
 		fmt.Println("Category: ", category_name)
+		keyword := vendor + name
+		fmt.Println("Keyword: ", keyword)
+		Words = append(Words, keyword)
+		Values = append(Values, 10)
 	}
 }
